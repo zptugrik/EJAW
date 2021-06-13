@@ -102,13 +102,18 @@ export abstract class AbstractGameScene implements GameScene {
                 break;
             case SceneState.FINALIZE:
                 this.fadeOutSceneTransition.update(delta, () => {
-                    this.sceneState = SceneState.DONE;
+                    // TODO: unstable transition
+                    this.sceneState = SceneState.LOAD;
                     if (this.onDone) {
                         this.onDone();
                     }
                 });
                 break;
         }
+    }
+
+    refresh(): void {
+
     }
 
     setFinalizing(onDone: () => void) {

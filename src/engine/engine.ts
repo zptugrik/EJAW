@@ -5,11 +5,10 @@ import { AbstractGameScene } from "../scene/scene";
 export interface SceneTransition {
     /**
      * Initializes the transition, can be called multiple times.
-     * @param app 
      * @param type 
      * @param sceneContainer 
      */
-    init(sceneContainer: PIXI.Container): void;
+    init(sceneContainer: PIXI.Container, type: TransitionType): void;
     update(delta: number, callback: () => void): void;
 }
 
@@ -50,7 +49,7 @@ export class Engine {
 
         this.currentScene = this.mainScene;
 
-        this.setupScene(this.currentScene.gameScene.getSceneContainer());
+        this.setupScene(this.currentScene);
     }
 
     /**
@@ -63,10 +62,10 @@ export class Engine {
             const scene = this.sceneSettings.find((sceneSettings: SceneSettings) => {
                 return sceneSettings.name === sceneName;
             });
-            console.error(sceneName);
 
             if (scene) {
-                this.setupScene(scene.gameScene.getSceneContainer());
+                scene.gameScene.refresh();
+                this.setupScene(scene);
                 this.currentScene = scene;
             } else {
                 console.error("SCENE NOT FOUND: " + sceneName);
@@ -78,30 +77,20 @@ export class Engine {
      * Adds a scene to the PIXI.APP.STAGE, removing all previous children.
      * @param sceneSettings 
      */
-    setupScene(sceneContainer: PIXI.Container) {
-        // TODO: update it keeping all scenes in pool - no need to overload everything every time
+    setupScene(sceneSettings: SceneSettings) {
         this.app.stage.removeChildren();
-        // const sceneContainer = new PIXI.Container();
-        // this.app.stage.addChild(sceneContainer);
+        const sceneContainer = sceneSettings.gameScene.getSceneContainer();
         this.app.stage.addChild(sceneContainer);
-
-        // const gameScene: AbstractGameScene = sceneSettings.gameScene;
-
-        // gameScene.setup(sceneContainer);
-
-        // sceneSettings.fadeInTransition.init(sceneContainer);
-        // sceneSettings.fadeOutTransition.init(sceneContainer);
-
-        // gameScene.fadeInTransition = sceneSettings.fadeOutTransition;
-        // gameScene.fadeOutTransition = sceneSettings.fadeInTransition;
+        sceneSettings.fadeInTransition.init(sceneContainer, TransitionType.FADE_IN);
+        sceneSettings.fadeOutTransition.init(sceneContainer, TransitionType.FADE_OUT);
     }
 
     createScene(sceneSettings: SceneSettings) {
         const gameScene: AbstractGameScene = sceneSettings.gameScene;
         gameScene.setup(gameScene.getSceneContainer());
 
-        sceneSettings.fadeInTransition.init(gameScene.getSceneContainer());
-        sceneSettings.fadeOutTransition.init(gameScene.getSceneContainer());
+        sceneSettings.fadeInTransition.init(gameScene.getSceneContainer(), TransitionType.FADE_IN);
+        sceneSettings.fadeOutTransition.init(gameScene.getSceneContainer(), TransitionType.FADE_OUT);
 
         gameScene.fadeInTransition = sceneSettings.fadeOutTransition;
         gameScene.fadeOutTransition = sceneSettings.fadeInTransition;

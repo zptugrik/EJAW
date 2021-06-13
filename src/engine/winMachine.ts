@@ -18,7 +18,7 @@ export class WinMachine {
     }
 
     private static getNewChestBonusWin() {
-        this.chestBonusWin = Math.random() > 0.5 ? Math.round(Math.random() * 1000) : 0;
+        this.chestBonusWin = Math.random() > 0.95 ? Math.round(Math.random() * 1000) : 0;
 
         return this.chestBonusWin;
     }

@@ -18,7 +18,7 @@ export interface SceneTransition {
      * @param type 
      * @param sceneContainer 
      */
-    init(sceneContainer: PIXI.Container): void;
+    init(sceneContainer: PIXI.Container, type: TransitionType): void;
     update(delta: number, callback: () => void): void;
 }
 
@@ -46,7 +46,8 @@ export class SimpleFadeTransition implements SceneTransition {
         this.transitionSprite = new PIXI.Sprite(this.app.renderer.generateTexture(graphics, 1, 1));
     }
 
-    init(sceneContainer: PIXI.Container) {
+    init(sceneContainer: PIXI.Container, type: TransitionType) {
+        this.type = type;
         this.createTransitionSprite(this.type);
         sceneContainer.addChild(this.transitionSprite);
     }
@@ -62,6 +63,7 @@ export class SimpleFadeTransition implements SceneTransition {
                 if (this.transitionSprite.alpha > 0) {
                     this.transitionSprite.alpha -= this.updateStep * delta;
                 } else {
+                    this.transitionSprite.alpha = 0;
                     callback();
                 }
                 break;
@@ -70,6 +72,7 @@ export class SimpleFadeTransition implements SceneTransition {
                 if (this.transitionSprite.alpha < 1) {
                     this.transitionSprite.alpha += this.updateStep * delta;
                 } else {
+                    this.transitionSprite.alpha = 1;
                     callback();
                 }
                 break;

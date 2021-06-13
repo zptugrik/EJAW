@@ -38,7 +38,7 @@ export abstract class AbstractGameScene implements GameScene {
     constructor(app: PIXI.Application) {
         this.sceneState = SceneState.LOAD;
         this.app = app;
-        this.sceneSwitcher = (sceneName: string) => {};
+        this.sceneSwitcher = (sceneName: string) => { };
         this.fadeInSceneTransition = new SimpleFadeTransition(app, 0.1, TransitionType.FADE_IN);
         this.fadeOutSceneTransition = new SimpleFadeTransition(app, 0.1, TransitionType.FADE_OUT);
         this.sceneContainer = new PIXI.Container();
@@ -60,6 +60,10 @@ export abstract class AbstractGameScene implements GameScene {
     init(app: PIXI.Application, sceneSwitcher: (sceneName: string) => void): void {
         this.app = app;
         this.sceneSwitcher = sceneSwitcher;
+    }
+
+    getSceneContainer() {
+        return this.sceneContainer;
     }
 
     /**

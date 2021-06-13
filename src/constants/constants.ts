@@ -57,7 +57,9 @@ const CONSTANTS = {
             PLAY: 'Play!',
             CHEST: 'Chest',
             WIN_AMOUNT: 'Win Amount',
-            WIN_BONUS: 'You Win bonus animation'
+            WIN_BONUS: 'You Win bonus animation',
+            BONUS_WIN: 'Bonus Win',
+            BONUS_TITLE: 'Bonus Screen'
         }
     },
 

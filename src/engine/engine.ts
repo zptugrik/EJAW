@@ -18,7 +18,7 @@ export interface SceneTransition {
  */
 export interface SceneSettings {
     index: number;
-    name?: string,
+    name: string,
     gameScene: AbstractGameScene;
     fadeInTransition: SceneTransition;
     fadeOutTransition: SceneTransition;
@@ -32,6 +32,9 @@ export class Engine {
     private app: PIXI.Application;
     private currentScene: SceneSettings;
 
+    private mainScene: SceneSettings;
+    private bonusScene: SceneSettings;
+
     constructor(app: PIXI.Application, scenes: SceneSettings[]) {
         this.app = app;
         this.sceneSettings = scenes;
@@ -39,14 +42,15 @@ export class Engine {
             sceneSettings.gameScene.init(this.app, this.sceneSwitcher);
         });
 
-        // Finding the scene with the lowest index
-        let tempScene = scenes[ 0 ];
-        for (let i = 1; i < scenes.length; i++) {
-            tempScene = tempScene.index > scenes[ i ].index ? scenes[ i ] : tempScene;
-        }
-        this.currentScene = tempScene;
+        this.mainScene = scenes[ 0 ];
+        this.bonusScene = scenes[ 1 ];
 
-        this.setupScene(this.currentScene);
+        this.createScene(this.mainScene);
+        this.createScene(this.bonusScene);
+
+        this.currentScene = this.mainScene;
+
+        this.setupScene(this.currentScene.gameScene.getSceneContainer());
     }
 
     /**
@@ -56,13 +60,13 @@ export class Engine {
      */
     sceneSwitcher = (sceneName: string) => {
         this.currentScene.gameScene.setFinalizing(() => {
-            // TODO: fix error
             const scene = this.sceneSettings.find((sceneSettings: SceneSettings) => {
                 return sceneSettings.name === sceneName;
             });
+            console.error(sceneName);
 
             if (scene) {
-                this.setupScene(scene);
+                this.setupScene(scene.gameScene.getSceneContainer());
                 this.currentScene = scene;
             } else {
                 console.error("SCENE NOT FOUND: " + sceneName);
@@ -74,18 +78,30 @@ export class Engine {
      * Adds a scene to the PIXI.APP.STAGE, removing all previous children.
      * @param sceneSettings 
      */
-    setupScene(sceneSettings: SceneSettings) {
+    setupScene(sceneContainer: PIXI.Container) {
         // TODO: update it keeping all scenes in pool - no need to overload everything every time
         this.app.stage.removeChildren();
-        const sceneContainer = new PIXI.Container();
+        // const sceneContainer = new PIXI.Container();
+        // this.app.stage.addChild(sceneContainer);
         this.app.stage.addChild(sceneContainer);
 
+        // const gameScene: AbstractGameScene = sceneSettings.gameScene;
+
+        // gameScene.setup(sceneContainer);
+
+        // sceneSettings.fadeInTransition.init(sceneContainer);
+        // sceneSettings.fadeOutTransition.init(sceneContainer);
+
+        // gameScene.fadeInTransition = sceneSettings.fadeOutTransition;
+        // gameScene.fadeOutTransition = sceneSettings.fadeInTransition;
+    }
+
+    createScene(sceneSettings: SceneSettings) {
         const gameScene: AbstractGameScene = sceneSettings.gameScene;
+        gameScene.setup(gameScene.getSceneContainer());
 
-        gameScene.setup(sceneContainer);
-
-        sceneSettings.fadeInTransition.init(sceneContainer);
-        sceneSettings.fadeOutTransition.init(sceneContainer);
+        sceneSettings.fadeInTransition.init(gameScene.getSceneContainer());
+        sceneSettings.fadeOutTransition.init(gameScene.getSceneContainer());
 
         gameScene.fadeInTransition = sceneSettings.fadeOutTransition;
         gameScene.fadeOutTransition = sceneSettings.fadeInTransition;

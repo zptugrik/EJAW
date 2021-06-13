@@ -7,41 +7,72 @@ const LOCALS = CONSTANTS.LOCALS[ CURRENT_LANGAUGE || CONSTANTS.DEFAULT_LANGAUGE 
 const CHEST_HEIGHT = 150;
 const NUM_CHESTS = 6;
 
+interface Position {
+    x: number;
+    y: number;
+};
+
+interface Size {
+    width: number;
+    height: number;
+}
+
+interface ChestModel {
+    position: Position;
+    size: Size;
+    index: number;
+    interactive: boolean;
+    activated: boolean;
+};
+
 
 export class MainScene extends AbstractGameScene {
     private playBtn: PIXI.Graphics;
-    private playText: PIXI.Text;
-    private chests: PIXI.Graphics[];
-    private chestsText: PIXI.Text[];
+    private playText: PIXI.Text = new PIXI.Text('');
+    private chests: PIXI.Graphics[] = [];
+    private chestsText: PIXI.Text[] = [];
+
+    private activatedChests: number;
 
     private isPlaying: boolean;
     private WIDTH: number;
     private HEIGHT: number;
 
+    private chestsModel: ChestModel[] = [];
+
+    private currentWinChest: PIXI.Text = new PIXI.Text('');
+
     constructor(app: PIXI.Application) {
         super(app);
 
+        this.activatedChests = 0;
         this.isPlaying = false;
 
         this.WIDTH = app.screen.width;
         this.HEIGHT = app.screen.height;
 
-        this.chests = [];
-        this.chestsText = [];
-        // TODO: get these numbers from constants
         for (let i = 0; i < NUM_CHESTS; i++) {
             this.chests.push(new PIXI.Graphics());
-            this.chests[ i ].interactive = false;
+            this.chestsModel.push({
+                position: {
+                    x: (i + 1) % 2 ? Math.round(this.WIDTH / 2) : 0,
+                    y: (i + 1) % 2 ? Math.round(CHEST_HEIGHT * (i + 1) / 2) : Math.round(CHEST_HEIGHT * i / 2)
+                },
+                size: {
+                    width: Math.round(this.WIDTH / 2) - 1,
+                    height: CHEST_HEIGHT - 1
+                },
+                index: i,
+                interactive: false,
+                activated: false
+            });
+            this.chests[ i ].interactive = this.chestsModel[ i ].interactive;
             this.chests[ i ].beginFill(0xCCCCCC, 1);
-            this.chests[ i ].drawRect(
-                (i + 1) % 2 ? Math.round(this.WIDTH / 2) : 0,
-                (i + 1) % 2 ? Math.round(CHEST_HEIGHT * (i + 1) / 2) : Math.round(CHEST_HEIGHT * i / 2),
-                Math.round(this.WIDTH / 2) - 1,
-                CHEST_HEIGHT - 1
-            );
+            this.drawButton(i);
             this.chestsText.push(new PIXI.Text(LOCALS.CHEST, CONSTANTS.BUTTON_PLAY_STYLE_DISABLE));
-            this.chestsText[ i ].x = ((i + 1) % 2 ? Math.round(this.WIDTH / 2) : 0) + Math.round((this.chests[ i ].width - this.chestsText[ i ].width) / 2);
-            this.chestsText[ i ].y = ((i + 1) % 2 ? Math.round(CHEST_HEIGHT * (i + 1) / 2) : Math.round(CHEST_HEIGHT * i / 2)) + Math.round((this.chests[ i ].height - this.chestsText[ i ].height) / 2);
+
+            this.chestsText[ i ].x = this.chestsModel[ i ].position.x + Math.round((this.chestsModel[ i ].size.width - this.chestsText[ i ].width) / 2);
+            this.chestsText[ i ].y = this.chestsModel[ i ].position.y + Math.round((this.chestsModel[ i ].size.height - this.chestsText[ i ].height) / 2);
             this.chests[ i ].addChild(this.chestsText[ this.chestsText.length - 1 ]);
         }
 
@@ -54,63 +85,70 @@ export class MainScene extends AbstractGameScene {
         this.playText.x = Math.round((this.playBtn.width - this.playText.width) / 2);
         this.playText.y = this.HEIGHT - Math.round((this.playBtn.height + (this.playText.height / 2)) / 2);
         this.playBtn.addChild(this.playText);
-
     }
 
     setup(sceneContainer: PIXI.Container) {
         this.sceneState = SceneState.LOAD;
+        this.sceneContainer = sceneContainer;
+        this.resetToBasic();
+    }
+
+    resetToBasic() {
+        this.removeAllListeners();
+        this.sceneContainer.removeChildren();
+        this.activatedChests = 0;
+
         this.isPlaying = false;
         this.playBtn.interactive = true;
-        sceneContainer.addChild(this.playBtn);
+        this.playBtn.beginFill(0x000000, 1);
+        this.playBtn.drawRect(0, this.HEIGHT - CHEST_HEIGHT, this.WIDTH, CHEST_HEIGHT);
+        this.playText.style = CONSTANTS.BUTTON_PLAY_STYLE_ENABLE;
+        this.sceneContainer.addChild(this.playBtn);
 
         for (let i = 0; i < this.chests.length; i++) {
-            sceneContainer.addChild(this.chests[ i ]);
+            this.chestsModel[ i ].activated = false;
+            this.chestsModel[ i ].interactive = false;
             this.chests[ i ].interactive = false;
             this.chests[ i ].buttonMode = true;
-            this.chests[ i ].addListener("pointerup", () => {
-                if (this.isPlaying) {
-                    // this.isPlaying = false;
-                    this.chests[ i ].interactive = false;
-                    this.chests[ i ].beginFill(0xCCCCCC, 1);
-                    this.chests[ i ].drawRect(
-                        (i + 1) % 2 ? Math.round(this.WIDTH / 2) : 0,
-                        (i + 1) % 2 ? Math.round(CHEST_HEIGHT * (i + 1) / 2) : Math.round(CHEST_HEIGHT * i / 2),
-                        Math.round(this.WIDTH / 2) - 1,
-                        CHEST_HEIGHT - 1);
-                    this.chestsText[ i ].style = CONSTANTS.BUTTON_PLAY_STYLE_DISABLE;
-                    let win = WinMachine.playChestRound();
-                    this.chestsText[ i ].text = win.chestTotalWin.toString();
-                    // this.sceneSwitcher("bonusScene");
-                    console.error(win);
-                }
-            });
-            this.chests[ i ].addListener("pointerover", () => {
-                if (this.isPlaying) {
-                    this.chests[ i ].beginFill(0xFFFFFF, 1);
-                    this.chests[ i ].drawRect(
-                        (i + 1) % 2 ? Math.round(this.WIDTH / 2) : 0,
-                        (i + 1) % 2 ? Math.round(CHEST_HEIGHT * (i + 1) / 2) : Math.round(CHEST_HEIGHT * i / 2),
-                        Math.round(this.WIDTH / 2) - 1,
-                        CHEST_HEIGHT - 1);
-                    this.chestsText[ i ].style = CONSTANTS.BUTTON_PLAY_STYLE_HOVER;
-                }
-            });
-            this.chests[ i ].addListener("pointerout", () => {
-                if (this.isPlaying) {
-                    this.chests[ i ].beginFill(0x000000, 1);
-                    this.chests[ i ].drawRect(
-                        (i + 1) % 2 ? Math.round(this.WIDTH / 2) : 0,
-                        (i + 1) % 2 ? Math.round(CHEST_HEIGHT * (i + 1) / 2) : Math.round(CHEST_HEIGHT * i / 2),
-                        Math.round(this.WIDTH / 2) - 1,
-                        CHEST_HEIGHT - 1);
-                    this.chestsText[ i ].style = CONSTANTS.BUTTON_PLAY_STYLE_ENABLE;
-                }
-            });
+
+            this.chests[ i ].beginFill(0xCCCCCC, 1);
+            this.drawButton(i);
+            this.chestsText[ i ].text = LOCALS.CHEST;
+
+            this.sceneContainer.addChild(this.chests[ i ]);
         }
 
+        this.addAllListeners();
+    }
 
+    resetToCurrent() {
+        for (let i = 0; i < this.chests.length; i++) {
+            if (this.chestsModel[ i ].activated) {
+                this.chests[ i ].interactive = false;
+                this.chests[ i ].beginFill(0xCCCCCC, 1);
+                this.drawButton(i);
+                this.chestsText[ i ].style = CONSTANTS.BUTTON_PLAY_STYLE_DISABLE;
+            } else {
+                this.chests[ i ].interactive = true;
+                this.addChestListeners(i)
+                this.chests[ i ].beginFill(0x000000, 1);
+                this.drawButton(i);
+                this.chestsText[ i ].style = CONSTANTS.BUTTON_PLAY_STYLE_ENABLE;
+            }
+        }
+        if (this.activatedChests > 5) {
+            this.resetToBasic();
+        }
+    }
 
-        this.playBtn.addListener("pointerup", () => {
+    addAllListeners() {
+        for (let i = 0; i < this.chests.length; i++) {
+            if (!this.chestsModel[ i ].activated) {
+                this.addChestListeners(i);
+            }
+        }
+
+        this.playBtn.addListener("pointerdown", () => {
             this.playText.style = CONSTANTS.BUTTON_PLAY_STYLE_DISABLE;
             this.playBtn.beginFill(0xCCCCCC, 1);
             this.playBtn.drawRect(0, this.HEIGHT - CHEST_HEIGHT, this.WIDTH, CHEST_HEIGHT);
@@ -119,12 +157,7 @@ export class MainScene extends AbstractGameScene {
             for (let i = 0; i < this.chests.length; i++) {
                 this.chests[ i ].interactive = true;
                 this.chests[ i ].beginFill(0x000000, 1);
-                this.chests[ i ].drawRect(
-                    (i + 1) % 2 ? Math.round(this.WIDTH / 2) : 0,
-                    (i + 1) % 2 ? Math.round(CHEST_HEIGHT * (i + 1) / 2) : Math.round(CHEST_HEIGHT * i / 2),
-                    Math.round(this.WIDTH / 2) - 1,
-                    CHEST_HEIGHT - 1
-                );
+                this.drawButton(i);
                 this.chestsText[ i ].style = CONSTANTS.BUTTON_PLAY_STYLE_ENABLE;
             }
         });
@@ -144,11 +177,89 @@ export class MainScene extends AbstractGameScene {
         });
     }
 
+    removeAllListeners() {
+        this.playBtn.removeAllListeners();
+        for (let i = 0; i < this.chests.length; i++) {
+            this.chests[ i ].removeAllListeners();
+        }
+    }
+
+    setChestsDisable() {
+        this.removeAllListeners();
+        for (let i = 0; i < this.chests.length; i++) {
+            this.chests[ i ].interactive = false;
+            this.chests[ i ].beginFill(0xCCCCCC, 1);
+            this.drawButton(i);
+            this.chestsText[ i ].style = CONSTANTS.BUTTON_PLAY_STYLE_DISABLE;
+        };
+    }
+
+    addChestListeners(i: number) {
+        this.chests[ i ].addListener("pointerdown", () => {
+            if (this.isPlaying) {
+                this.activatedChests++;
+                this.chestsModel[ i ].activated = true;
+                this.chests[ i ].interactive = false;
+                this.chests[ i ].beginFill(0xCCCCCC, 1);
+                this.drawButton(i);
+                this.chestsText[ i ].style = CONSTANTS.BUTTON_PLAY_STYLE_DISABLE;
+                const win = WinMachine.playChestRound();
+                this.chestsText[ i ].text = win.chestTotalWin.toString();
+                this.setChestsDisable();
+                if (win.chestWin > 0) {
+                    this.currentWinChest = this.chestsText[ i ];
+                    this.sceneState = SceneState.PROCESS;
+                } else {
+                    this.resetToCurrent();
+                }
+                if (win.chestBonusWin > 0) {
+                    this.chestsText[ i ].text = this.chestsText[ i ].text + ' + ' + LOCALS.BONUS_WIN;
+                }
+            }
+        });
+        this.chests[ i ].addListener("pointerover", () => {
+            if (this.isPlaying) {
+                this.chests[ i ].beginFill(0xFFFFFF, 1);
+                this.drawButton(i);
+                this.chestsText[ i ].style = CONSTANTS.BUTTON_PLAY_STYLE_HOVER;
+            }
+        });
+        this.chests[ i ].addListener("pointerout", () => {
+            if (this.isPlaying) {
+                this.chests[ i ].beginFill(0x000000, 1);
+                this.drawButton(i);
+                this.chestsText[ i ].style = CONSTANTS.BUTTON_PLAY_STYLE_ENABLE;
+            }
+        });
+    }
+
+    drawButton(index: number) {
+        this.chests[ index ].drawRect(
+            this.chestsModel[ index ].position.x,
+            this.chestsModel[ index ].position.y,
+            this.chestsModel[ index ].size.width,
+            this.chestsModel[ index ].size.height
+        );
+    }
+
     preTransitionUpdate(delta: number) {
-        // this.melon.rotation += 0.1 * delta;
+
     }
 
     sceneUpdate(delta: number) {
-        // this.melon.rotation += 0.1 * delta;
+        if (this.currentWinChest.text === '') {
+            return;
+        };
+        this.currentWinChest.rotation += 0.1 * delta;
+        if (this.currentWinChest.rotation > Math.PI * 1.9) {
+            this.currentWinChest.rotation = 0;
+            this.currentWinChest = new PIXI.Text('');
+            this.resetToCurrent();
+
+            if (WinMachine.getCurrentResult().chestBonusWin > 0) {
+                // this.sceneState = SceneState.FINALIZE;
+                this.sceneSwitcher("bonusScene");
+            }
+        }
     }
 }

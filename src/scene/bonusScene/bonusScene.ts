@@ -21,15 +21,18 @@ export class BonusScene extends AbstractGameScene {
         this.HEIGHT = app.screen.height;
 
         this.titleText = new PIXI.Text(LOCALS.BONUS_TITLE, CONSTANTS.BUTTON_PLAY_STYLE_ENABLE);
-        this.titleText.x = Math.round((this.WIDTH - this.titleText.width) / 2);
+        this.titleText.anchor.set(0.5);
+        this.titleText.x = Math.round(this.WIDTH / 2);
         this.titleText.y = Math.round(this.HEIGHT / 4);
 
         this.youWinText = new PIXI.Text(LOCALS.WIN_BONUS, CONSTANTS.BUTTON_PLAY_STYLE_ENABLE);
-        this.youWinText.x = Math.round((this.WIDTH - this.youWinText.width) / 2);
+        this.youWinText.anchor.set(0.5);
+        this.youWinText.x = Math.round(this.WIDTH / 2);
         this.youWinText.y = Math.round(2 * this.HEIGHT / 4);
 
         this.winAmountText = new PIXI.Text(LOCALS.WIN_AMOUNT, CONSTANTS.BUTTON_PLAY_STYLE_ENABLE);
-        this.winAmountText.x = Math.round((this.WIDTH - this.winAmountText.width) / 2);
+        this.winAmountText.anchor.set(0.5);
+        this.winAmountText.x = Math.round(this.WIDTH / 2);
         this.winAmountText.y = Math.round(3 * this.HEIGHT / 4);
     }
 
@@ -53,10 +56,11 @@ export class BonusScene extends AbstractGameScene {
     }
 
     sceneUpdate(delta: number) {
+        this.youWinText.rotation += 0.1 * delta;
         this.showCounter++;
-        // console.log(this.showCounter);
         if (this.showCounter > 200) {
             this.showCounter = 0;
+            this.youWinText.rotation = 0;
             this.sceneSwitcher("mainScene");
         }
     }

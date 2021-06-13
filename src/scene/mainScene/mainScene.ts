@@ -83,9 +83,9 @@ export class MainScene extends AbstractGameScene {
             });
 
             this.chestsText.push(new PIXI.Text(LOCALS.CHEST, CONSTANTS.BUTTON_PLAY_STYLE_DISABLE));
-
-            this.chestsText[ i ].x = this.chestsModel[ i ].position.x + Math.round((this.chestsModel[ i ].size.width - this.chestsText[ i ].width) / 2);
-            this.chestsText[ i ].y = this.chestsModel[ i ].position.y + Math.round((this.chestsModel[ i ].size.height - this.chestsText[ i ].height) / 2);
+            this.chestsText[ i ].anchor.set(0.5);
+            this.chestsText[ i ].x = this.chestsModel[ i ].position.x + Math.round(this.chestsModel[ i ].size.width / 2);
+            this.chestsText[ i ].y = this.chestsModel[ i ].position.y + Math.round(this.chestsModel[ i ].size.height / 2);
             this.chests[ i ].addChild(this.chestsText[ this.chestsText.length - 1 ]);
 
             this.setChestState(i, BUTTON_STATE.DISABLE);
@@ -121,7 +121,7 @@ export class MainScene extends AbstractGameScene {
         this.playText.style = CONSTANTS.BUTTON_PLAY_STYLE_ENABLE;
         this.sceneContainer.addChild(this.playBtn);
 
-        for (let i = 0; i < this.chests.length; i++) {
+        for (let i = 0; i < NUM_CHESTS; i++) {
             this.chestsModel[ i ].activated = false;
             this.chestsModel[ i ].interactive = false;
 
@@ -129,7 +129,7 @@ export class MainScene extends AbstractGameScene {
             this.chestsText[ i ].text = LOCALS.CHEST;
 
             this.sceneContainer.addChild(this.chests[ i ]);
-            this.refresh();
+            // this.refresh();
         }
 
         this.addAllListeners();
@@ -138,7 +138,7 @@ export class MainScene extends AbstractGameScene {
     // TODO: this is unstable
     refresh() {
         if (this.isPlaying) {
-            for (let i = 0; i < this.chests.length; i++) {
+            for (let i = 0; i < NUM_CHESTS; i++) {
                 if (this.chestsModel[ i ].activated) {
                     this.setChestState(i, BUTTON_STATE.DISABLE);
                 } else {
@@ -147,6 +147,7 @@ export class MainScene extends AbstractGameScene {
                     this.setChestState(i, BUTTON_STATE.ENABLE);
                 }
             }
+            this.currentWinChest = new PIXI.Text('');
         }
     }
 
@@ -166,7 +167,7 @@ export class MainScene extends AbstractGameScene {
             this.playBtn.endFill();
             this.isPlaying = true;
             this.playBtn.interactive = false;
-            for (let i = 0; i < this.chests.length; i++) {
+            for (let i = 0; i < NUM_CHESTS; i++) {
                 this.chestsModel[ i ].activated = false;
                 this.chestsModel[ i ].interactive = true;
                 this.setChestState(i, BUTTON_STATE.ENABLE);
@@ -192,13 +193,13 @@ export class MainScene extends AbstractGameScene {
 
     removeAllListeners() {
         this.playBtn.removeAllListeners();
-        for (let i = 0; i < this.chests.length; i++) {
+        for (let i = 0; i < NUM_CHESTS; i++) {
             this.chests[ i ].removeAllListeners();
         }
     }
 
     setChestsDisable() {
-        for (let i = 0; i < this.chests.length; i++) {
+        for (let i = 0; i < NUM_CHESTS; i++) {
             this.chests[ i ].removeAllListeners();
             this.setChestState(i, BUTTON_STATE.DISABLE);
         };
@@ -216,11 +217,11 @@ export class MainScene extends AbstractGameScene {
             this.chestsText[ i ].text = win.chestTotalWin.toString();
             this.setChestsDisable();
 
+            this.currentWinChest = this.chestsText[ i ];
             if (win.chestWin > 0) {
-                this.currentWinChest = this.chestsText[ i ];
                 this.sceneState = SceneState.PROCESS;
             } else {
-                this.refresh();
+                // this.refresh();
             }
 
             if (win.chestBonusWin > 0) {
@@ -266,20 +267,23 @@ export class MainScene extends AbstractGameScene {
     }
 
     preTransitionUpdate(delta: number) {
-        if (this.activatedChests >= this.chests.length) {
+        if (this.activatedChests >= NUM_CHESTS) {
             this.resetToBasic();
         }
     }
 
     // TODO: refactore it
     sceneUpdate(delta: number) {
-        if (this.currentWinChest.text === '' && this.activatedChests < this.chests.length) {
+        if (this.currentWinChest.text === '' && this.activatedChests < NUM_CHESTS) {
             return;
-        };
+        }
+        if (this.currentWinChest.text !== '0') {
+            this.currentWinChest.scale.set(this.currentWinChest.rotation / 4);
+        }
         this.currentWinChest.rotation += 0.1 * delta;
-        if (this.currentWinChest.rotation > Math.PI * 1.9) {
+        if (this.currentWinChest.rotation > Math.PI * 2) {
             this.currentWinChest.rotation = 0;
-            this.currentWinChest = new PIXI.Text('');
+            this.currentWinChest.scale.set(1);
             this.refresh();
 
             if (WinMachine.getCurrentResult().chestBonusWin > 0) {

@@ -5,11 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "webpack serve",
-    "dev": "webpack serve --mode development --content-base ./dist",
-    "build": "node_modules/.bin/webpack --config webpack.config.js",
-    "build:watch": "node_modules/.bin/webpack -w",
-    "clean": "rm ./dist/*",
-    "reset": "rm -rf node_modules && npm cache verify && npm i"
+    "build": "node_modules/.bin/webpack --config webpack.config.js"
   },
   "author": "Dmytro Parubochyi",
   "license": "ISC",

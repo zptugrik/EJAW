@@ -1,6 +1,6 @@
-import CONSTANTS from "../../constants/constants";
+import CONSTANTS, { SceneState } from "../../constants/constants";
 import * as PIXI from "pixi.js";
-import { AbstractGameScene, SceneState } from "../scene";
+import { AbstractGameScene } from "../scene";
 import { WinMachine } from "../../engine/winMachine";
 
 const CURRENT_LANGAUGE = 'en';

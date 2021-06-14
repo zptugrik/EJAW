@@ -1,34 +1,12 @@
+import { SceneTransition, TransitionType } from "../constants/constants";
 import * as PIXI from "pixi.js";
 
-export enum TransitionType {
-    FADE_OUT = "hide_mask",
-    FADE_IN = "show_mask"
-}
-
-/**
- * Base interface for a scene transition.
- *
- * @export
- * @interface SceneTransition
- */
-export interface SceneTransition {
-    /**
-     * Initializes the transition, can be called multiple times.
-     * @param app 
-     * @param type 
-     * @param sceneContainer 
-     */
-    init(sceneContainer: PIXI.Container, type: TransitionType): void;
-    update(delta: number, callback: () => void): void;
-}
 
 
 /**
  * Simple transition that can fade into/out of black.
  */
 export class SimpleFadeTransition implements SceneTransition {
-    // TODO: make reuseable transitions
-    // TODO: try something other
     private app: PIXI.Application;
     private type: TransitionType;
     private transitionSprite: PIXI.Sprite;

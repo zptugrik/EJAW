@@ -1,9 +1,5 @@
-export interface Result {
-    chestWin: number;
-    chestBonusWin: number;
-    chestTotalWin: number;
-    totalWin: number;
-}
+import { Result } from "../constants/constants";
+
 
 export class WinMachine {
     private static chestWin: number = 0;
@@ -25,6 +21,7 @@ export class WinMachine {
 
     public static playChestRound(): Result {
         this.getNewChestWin();
+
         // chestBonusWin is possible only if there is a chestWin
         if (this.chestWin > 0) {
             this.getNewChestBonusWin();

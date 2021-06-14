@@ -1,6 +1,6 @@
-import CONSTANTS, { BUTTON_STATE, ChestModel } from "../../constants/constants";
+import CONSTANTS, { BUTTON_STATE, ChestModel, SceneState } from "../../constants/constants";
 import * as PIXI from "pixi.js";
-import { AbstractGameScene, SceneState } from "../scene";
+import { AbstractGameScene } from "../scene";
 import { WinMachine } from "../../engine/winMachine";
 
 const CURRENT_LANGAUGE = 'en';
@@ -99,7 +99,6 @@ export class MainScene extends AbstractGameScene {
         }
     }
 
-    // TODO: this is unstable
     refresh() {
         for (let i = 0; i < NUM_CHESTS; i++) {
             if (this.chestsModel[ i ].activated) {
@@ -137,23 +136,27 @@ export class MainScene extends AbstractGameScene {
         };
     }
 
-    removeChestListeners(index: number) {
-        this.chests[ index ].removeAllListeners();
-    }
-
-    // TODO: this part is unstable
     addChestListeners(i: number) {
         this.chests[ i ].addListener("pointerdown", () => {
             this.chestsModel[ i ].activated = true;
-            this.setChestState(i, BUTTON_STATE.DISABLE);
+
+            // bring button on top
+            this.sceneContainer.swapChildren(this.sceneContainer.getChildAt(this.sceneContainer.children.length - 1), this.chests[ i ]);
+            this.sceneContainer.updateTransform();
+
+            // call new round to recalculate results
             const win = WinMachine.playChestRound();
+
             this.chestsText[ i ].text = win.chestTotalWin.toString();
+
+            // set all chest states to DISABLE
             this.setChestsDisable();
 
+            // geting object for open / win / loose animation
             this.currentWinChest = this.chestsText[ i ];
 
             if (win.chestBonusWin > 0) {
-                this.chestsText[ i ].text = this.chestsText[ i ].text + ' + ' + LOCALS.BONUS_WIN;
+                this.chestsText[ i ].text = this.chestsText[ i ].text + ' + ' + LOCALS.BONUS_WIN + ' ' + win.chestBonusWin.toString();
             }
         });
         this.chests[ i ].addListener("pointerover", () => {
@@ -227,14 +230,15 @@ export class MainScene extends AbstractGameScene {
         }
     }
 
-    // TODO: refactore it
     sceneUpdate(delta: number) {
         if (this.currentWinChest.text === '' && this.activatedChests < NUM_CHESTS) {
             return;
         }
 
+        // rotation animation for opening chest / same for loose
         this.currentWinChest.rotation += 0.1 * delta;
 
+        // scale animation if any win > 0
         if (this.currentWinChest.text !== '0') {
             this.currentWinChest.scale.set(this.currentWinChest.rotation / 4);
         }

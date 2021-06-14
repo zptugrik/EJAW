@@ -1,21 +1,7 @@
+import { GameScene, SceneState, SceneTransition, TransitionType } from "../constants/constants";
 import * as PIXI from "pixi.js";
-import { SceneTransition, SimpleFadeTransition, TransitionType } from './../transition/transition';
-/**
- * Scene state enum, representing its lifecycle.
- */
-export enum SceneState {
-    LOAD,
-    PROCESS,
-    FINALIZE,
-    DONE
-}
+import { SimpleFadeTransition } from './../transition/transition';
 
-/**
- * Base interface for all game scenes.
- */
-export interface GameScene {
-    sceneUpdate(delta: number): void;
-}
 
 /**
  * Base implementation of a scene. Provides lifecycle update logic.
@@ -26,7 +12,6 @@ export interface GameScene {
  * @implements {GameScene}
  */
 export abstract class AbstractGameScene implements GameScene {
-    // TODO: fix error
     protected sceneState: SceneState;
     protected app: PIXI.Application;
     protected sceneSwitcher: (sceneName: string) => void;
@@ -102,7 +87,6 @@ export abstract class AbstractGameScene implements GameScene {
                 break;
             case SceneState.FINALIZE:
                 this.fadeOutSceneTransition.update(delta, () => {
-                    // TODO: unstable transition
                     this.sceneState = SceneState.LOAD;
                     if (this.onDone) {
                         this.onDone();

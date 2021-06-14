@@ -2,7 +2,8 @@ import * as PIXI from "pixi.js";
 import { MainScene } from "./scene/mainScene/mainScene";
 import { BonusScene } from "./scene/bonusScene/bonusScene";
 import { Engine } from "./engine/engine";
-import { SimpleFadeTransition, TransitionType } from "./transition/transition";
+import { SimpleFadeTransition } from "./transition/transition";
+import { TransitionType } from "./constants/constants";
 
 const TRANSITION_STEP = 0.03;
 

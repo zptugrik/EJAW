@@ -1,5 +1,5 @@
+import { TransitionType } from "../constants/constants";
 import * as PIXI from "pixi.js";
-import { TransitionType } from "../transition/transition";
 import { AbstractGameScene } from "../scene/scene";
 
 export interface SceneTransition {

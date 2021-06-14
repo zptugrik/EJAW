@@ -1,5 +1,45 @@
 import * as PIXI from "pixi.js";
 
+/**
+ * Scene state enum, representing its lifecycle.
+ */
+export enum SceneState {
+    LOAD,
+    PROCESS,
+    FINALIZE,
+    DONE
+}
+
+/**
+ * Base interface for all game scenes.
+ */
+export interface GameScene {
+    sceneUpdate(delta: number): void;
+}
+
+export enum TransitionType {
+    FADE_OUT = "hide_mask",
+    FADE_IN = "show_mask"
+}
+
+/**
+ * Base interface for a scene transition.
+ *
+ * @export
+ * @interface SceneTransition
+ */
+export interface SceneTransition {
+    /**
+     * Initializes the transition, can be called multiple times.
+     * @param app 
+     * @param type 
+     * @param sceneContainer 
+     */
+    init(sceneContainer: PIXI.Container, type: TransitionType): void;
+    update(delta: number, callback: () => void): void;
+}
+
+
 export interface Position {
     x: number;
     y: number;
@@ -21,6 +61,13 @@ export enum BUTTON_STATE {
     ENABLE,
     DISABLE,
     HOVER
+}
+
+export interface Result {
+    chestWin: number;
+    chestBonusWin: number;
+    chestTotalWin: number;
+    totalWin: number;
 }
 
 const BUTTON_PLAY_STYLE_ENABLE = new PIXI.TextStyle({
@@ -79,7 +126,7 @@ const CONSTANTS = {
         en: {
             PLAY: 'Play!',
             CHEST: 'Chest',
-            WIN_AMOUNT: 'Win Amount',
+            WIN_AMOUNT: 'Bonus Win Amount',
             WIN_BONUS: 'You Win bonus animation',
             BONUS_WIN: 'Bonus Win',
             BONUS_TITLE: 'Bonus Screen'

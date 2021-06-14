@@ -56,11 +56,15 @@ export class BonusScene extends AbstractGameScene {
     }
 
     sceneUpdate(delta: number) {
-        this.youWinText.rotation += 0.1 * delta;
+        this.youWinText.scale.set(
+            Boolean(this.showCounter > 100)
+                ? this.youWinText.scale.x - 0.02 * delta
+                : this.youWinText.scale.x + 0.02 * delta
+        );
         this.showCounter++;
         if (this.showCounter > 200) {
             this.showCounter = 0;
-            this.youWinText.rotation = 0;
+            this.youWinText.scale.set(1);
             this.sceneSwitcher("mainScene");
         }
     }

@@ -1,5 +1,28 @@
 import * as PIXI from "pixi.js";
 
+export interface Position {
+    x: number;
+    y: number;
+};
+
+export interface Size {
+    width: number;
+    height: number;
+}
+
+export interface ChestModel {
+    position: Position;
+    size: Size;
+    index: number;
+    activated: boolean;
+};
+
+export enum BUTTON_STATE {
+    ENABLE,
+    DISABLE,
+    HOVER
+}
+
 const BUTTON_PLAY_STYLE_ENABLE = new PIXI.TextStyle({
     fontFamily: 'Arial',
     fontSize: 36,
@@ -36,7 +59,7 @@ const BUTTON_PLAY_STYLE_HOVER = new PIXI.TextStyle({
     fontFamily: 'Arial',
     fontSize: 36,
     fontWeight: 'bold',
-    fill: [ '#ffbbff', '#00ff99' ],
+    fill: [ '#00feff', '#ff00d7' ],
     stroke: '#4a1850',
     strokeThickness: 5,
     dropShadow: true,
@@ -49,8 +72,8 @@ const BUTTON_PLAY_STYLE_HOVER = new PIXI.TextStyle({
 });
 
 const CONSTANTS = {
-    REEL_WIDTH: 160,
-    SYMBOL_SIZE: 150,
+    NUM_CHESTS: 6,
+    CHEST_HEIGHT: 150,
 
     LOCALS: {
         en: {

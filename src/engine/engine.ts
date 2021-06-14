@@ -66,7 +66,7 @@ export class Engine {
             if (scene) {
                 this.setupScene(scene);
                 this.currentScene = scene;
-                // scene.gameScene.refresh();
+                scene.gameScene.refresh();
             } else {
                 console.error("SCENE NOT FOUND: " + sceneName);
             }

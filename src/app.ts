@@ -51,12 +51,12 @@ window.onload = setup;
 const ratio = window.innerWidth / window.innerHeight;
 
 const resize = () => {
+    let w = window.innerHeight;
+    let h = window.innerHeight;
     if (window.innerWidth / window.innerHeight >= ratio) {
-        var w = window.innerHeight * ratio;
-        var h = window.innerHeight;
+        w = window.innerHeight * ratio;
     } else {
-        var w = window.innerWidth;
-        var h = window.innerWidth / ratio;
+        h = window.innerWidth / ratio;
     }
     app.view.style.width = w + 'px';
     app.view.style.height = h + 'px';

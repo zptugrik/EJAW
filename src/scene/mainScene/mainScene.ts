@@ -108,6 +108,10 @@ export class MainScene extends AbstractGameScene {
             }
         }
         this.currentWinChest = new PIXI.Text('');
+
+        if (this.activatedChests >= NUM_CHESTS) {
+            this.resetToBasic();
+        }
     }
 
     addAllListeners() {
@@ -225,9 +229,7 @@ export class MainScene extends AbstractGameScene {
     }
 
     preTransitionUpdate(delta: number) {
-        if (this.activatedChests >= NUM_CHESTS) {
-            this.resetToBasic();
-        }
+
     }
 
     sceneUpdate(delta: number) {

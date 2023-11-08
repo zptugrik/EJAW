@@ -35,6 +35,5 @@ After you run the `npm run build` command, your code will be built into a single
 
 ## Game description:
 
-The game contains a play button and 6 chests.
-
-At the initial state, the play button is enabled while the chests are disabled.
+Online link for test
+https://zptugrik.github.io/EJAW/

@@ -1,0 +1,1 @@
+{"version":3,"file":"abstract-crator.js","sourceRoot":"","sources":["../../src/Board/abstract-crator.ts"],"names":[],"mappings":";;;AAGA,MAAsB,OAAO;IAOzB,mCAAmC;IACnC,6DAA6D;IAC7D,4CAA4C;IAC5C,+BAA+B;IAC/B,6FAA6F;IAC7F,IAAI;IACG,UAAU;QACb,sDAAsD;QACtD,MAAM,OAAO,GAAG,IAAI,CAAC,aAAa,EAAE,CAAC;QACrC,wBAAwB;QACxB,OAAO,OAAO,CAAC,SAAS,EAAE,CAAC;IAC/B,CAAC;CACJ;AAnBD,0BAmBC"}

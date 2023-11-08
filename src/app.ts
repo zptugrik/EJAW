@@ -1,57 +1,34 @@
-import * as PIXI from "pixi.js";
-import { MainScene } from "./scene/mainScene/mainScene";
-import { BonusScene } from "./scene/bonusScene/bonusScene";
-import { Engine } from "./engine/engine";
-import { SimpleFadeTransition } from "./transition/transition";
-import { TransitionType } from "./constants/constants";
+import { Ui } from './UI/ui';
+import { Board } from './Board/board';
+import { Application, Container, Graphics } from 'pixi.js';
 
-const TRANSITION_STEP = 0.03;
-
-const app = new PIXI.Application({
+const app = new Application<HTMLCanvasElement>({
     width: window.innerWidth,
     height: window.innerHeight,
     backgroundColor: 0x1099bb,
-    resolution: window.devicePixelRatio || 1,
     antialias: true
 });
 
-app.stage.interactive = true;
-
+const container = new Container();
 document.body.appendChild(app.view);
-
-const mainScene = new MainScene(app);
-const bonusScene = new BonusScene(app);
-
-const setup = (): void => {
-    const engine: Engine = new Engine(app, [
-        {
-            index: 0,
-            name: "mainScene",
-            gameScene: mainScene,
-            fadeInTransition: new SimpleFadeTransition(app, TRANSITION_STEP, TransitionType.FADE_IN),
-            fadeOutTransition: new SimpleFadeTransition(app, TRANSITION_STEP, TransitionType.FADE_OUT)
-        },
-        {
-            index: 1,
-            name: "bonusScene",
-            gameScene: bonusScene,
-            fadeInTransition: new SimpleFadeTransition(app, TRANSITION_STEP, TransitionType.FADE_IN),
-            fadeOutTransition: new SimpleFadeTransition(app, TRANSITION_STEP, TransitionType.FADE_OUT)
-        } ]);
-
-    app.ticker.add(delta => {
-        engine.update(delta);
-    });
+const board = new Board();
+board.init(app);
+/// UI
+const ui = new Ui();
+ui.init(app);
+const uiButton = app.stage.getChildByName("GenerateButton", true);
+if (uiButton) {
+    uiButton.addEventListener('mousedown', function (e) {
+        board.refreshSymbolsColor()}
+    );
 }
-
-window.onload = setup;
-
 
 // Autoresize for canvas
 const ratio = window.innerWidth / window.innerHeight;
 
 const resize = () => {
-    let w = window.innerHeight;
+    
+    let w = window.innerWidth;
     let h = window.innerHeight;
     if (window.innerWidth / window.innerHeight >= ratio) {
         w = window.innerHeight * ratio;
@@ -62,3 +39,4 @@ const resize = () => {
     app.view.style.height = h + 'px';
 }
 window.onresize = resize;
+
